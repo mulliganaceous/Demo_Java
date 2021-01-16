@@ -55,10 +55,10 @@ public class GuiMain extends Application {
 		else {
 			for (int k = 0; k < INITIALMODE; k++) {
 				double m = (Math.random() + 0.01)*4;
-				double x = Math.random()*96 - 48;
-				double y = Math.random()*96 - 48;
-				double dx = Math.random()*0.5-0.25;
-				double dy = Math.random()*0.5-0.25;
+				double x = Math.random()*64 - 32;
+				double y = Math.random()*64 - 32;
+				double dx = Math.random()*0.25-0.125;
+				double dy = Math.random()*0.25-0.125;
 				model.getSpace().addBody(new Body("#" + k, m, Math.pow(m, 1.0/2)), new Vector(x,y), new Vector(dx,dy));
 			}
 		}

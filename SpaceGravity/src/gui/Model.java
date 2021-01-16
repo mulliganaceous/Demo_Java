@@ -31,8 +31,8 @@ public class Model {
 		this.observableSpacePane = spacepane;
 	}
 	
-	public void setObservableInfoPane(RealSpacePane spacepane) {
-		this.observableInfoPane = spacepane;
+	public void setObservableInfoPane(InfoPane infoPane) {
+		this.observableInfoPane = infoPane;
 	}
 	
 	public int step(double dt) {

@@ -14,6 +14,25 @@ public class Realspace extends Space {
 		this.G = G;
 	}
 	
+	public Vector weightFrom(Vector x1, Body x2) {
+		Vector forceFromBody = Vector.zeroVector(DIMENSION);
+		Vector distance = Vector.diff(x2.getPosition(), x1);
+		if (Vector.norm2(distance) >= 1E-12) {
+			double magnitude = G*1*x2.getMass()/Vector.norm2(distance);
+			forceFromBody = Vector.mult(magnitude, Vector.unit(distance));
+		}
+		return forceFromBody;
+	}
+	
+	public Vector weightAt(Vector x1) {
+		BodyIndexedIterator iter0 = this.getBodies().iterator();
+		Vector weight = Vector.zeroVector(DIMENSION);
+		while (iter0.hasNext()) {
+			weight.addBy(weightFrom(x1, iter0.next()));
+		}
+		return weight;
+	}
+	
 	public void step(double dt) {
 		BodyIndexedIterator iter0 = this.getBodies().iterator();
 		Body examined;
@@ -25,13 +44,13 @@ public class Realspace extends Space {
 			examined.resetAcceleration();
 		}
 		
-		// Determine accelerations of all the bodies. This is a quadratic algorithm.
+		// Determine forces of all the bodies. This is a quadratic algorithm.
 		BodyIndexedIterator iter1 = this.getBodies().iterator();
 		BodyIndexedIterator iter2;
 		Body otherbody;	
 		while (iter1.hasNext()) {
 			examined = iter1.next();
-			Vector aFromOtherBody = Vector.zeroVector(DIMENSION);
+			Vector forceFromBody = Vector.zeroVector(DIMENSION);
 			iter2 = iter1.clone();
 			// Check all other bodies
 			while (iter2.hasNext()) {
@@ -39,16 +58,16 @@ public class Realspace extends Space {
 				Vector distance = Vector.diff(otherbody.getPosition(),examined.getPosition());
 				
 				if (Vector.norm2(distance) <= 0.000001)
-					aFromOtherBody = Vector.zeroVector(DIMENSION);
+					forceFromBody = Vector.zeroVector(DIMENSION);
 				else {
 					double magnitude = 
 							G*examined.getMass()*otherbody.getMass()/
 							Vector.norm2(distance);
-					aFromOtherBody = Vector.mult(magnitude, Vector.unit(distance));
+					forceFromBody = Vector.mult(magnitude, Vector.unit(distance));
 				}
-				// The acceleration force contributed is mutual
-				examined.addAccelerationBy(aFromOtherBody);
-				otherbody.addAccelerationBy(Vector.mult(-1, aFromOtherBody));
+				// The weight force contributed is mutual. Determine acceleration.
+				examined.addAccelerationBy(Vector.mult(1d/examined.getMass(),forceFromBody));
+				otherbody.addAccelerationBy(Vector.mult(-1d/examined.getMass(), forceFromBody));
 			}	
 		}
 	}

@@ -1,6 +1,7 @@
 package gui;
 
 import javafx.scene.layout.StackPane;
+import space.Vector;
 
 public class RealSpacePane extends StackPane implements ObservableView {
 	private Model model;
@@ -37,7 +38,11 @@ public class RealSpacePane extends StackPane implements ObservableView {
 	}
 	
 	public double convertBackY(double yc) {
-		return -(double)(yc - originCanvas[0])/zoom;
+		return -(double)(yc - originCanvas[1])/zoom;
+	}
+	
+	public Vector convertBack(double xc, double yc) {
+		return null; // Not Impelemented TODO
 	}
 	
 	public double getZoom() {

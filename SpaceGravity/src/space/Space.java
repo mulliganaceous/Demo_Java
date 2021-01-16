@@ -15,6 +15,10 @@ public abstract class Space {
 		this.bodies = new BodyIndexedList(new int[] {2,12,24,64});
 	}
 	
+	public abstract Vector weightFrom(Vector x1, Body y);
+	
+	public abstract Vector weightAt(Vector x1);
+	
 	public abstract void step(double dt);
 	
 	protected BodyIndexedList getBodies() {

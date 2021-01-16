@@ -16,6 +16,8 @@ import space.Vector;
 public class RealSpaceMap extends Canvas {
 	private final RealSpacePane spacepane;
 	private final Model model;
+	private double xP = Double.NaN;
+	private double yP = Double.NaN;
 	private final static int POINTSIZE = 16;
 	
 	public RealSpaceMap(RealSpacePane spacepane, Model model) {
@@ -63,7 +65,13 @@ public class RealSpaceMap extends Canvas {
 						spacepane.convertY(y) - apparentSize/2, 
 						apparentSize, apparentSize);
 			}
-			
+		}
+		
+		iter = space.getBodiesIterator();
+		while (iter.hasNext()) {
+			Body body = iter.next();
+			Vector x = body.getPosition();
+
 			// Draw Velocity
 			gc.setStroke(Color.GREEN);
 			gc.setLineWidth(2);
@@ -71,8 +79,8 @@ public class RealSpaceMap extends Canvas {
 			double dx = v.entry(0)*Math.pow(Vector.abs(v),-0.5);
 			double dy = v.entry(1)*Math.pow(Vector.abs(v),-0.5);
 			gc.strokeLine(
-					spacepane.convertX(x), spacepane.convertY(y), 
-					spacepane.convertX(x + dx), spacepane.convertY(y + dy));
+					spacepane.convertX(x.entry(0)), spacepane.convertY(x.entry(1)), 
+					spacepane.convertX(x.entry(0) + dx), spacepane.convertY(x.entry(1) + dy));
 			
 			// Draw Gravitational Acceleration
 			gc.setStroke(Color.TEAL);
@@ -81,15 +89,38 @@ public class RealSpaceMap extends Canvas {
 
 			double ddx = a.entry(0);
 			double ddy = a.entry(1);
-			if (Vector.norm2(a) < 0.25 && Vector.norm2(a) > 1E-6) {
+			if (Vector.norm2(a) < 0.25 && Vector.norm2(a) > 1E-06) {
 				ddx = a.entry(0)*Math.pow(Vector.abs(a),-1)/2;
 				ddy = a.entry(1)*Math.pow(Vector.abs(a),-1)/2;
 			}
 
 			gc.strokeLine(
-					spacepane.convertX(x + dx), spacepane.convertY(y + dy), 
-					spacepane.convertX(x + dx + ddx), spacepane.convertY(y + dy + ddy));
+					spacepane.convertX(x.entry(0) + dx), spacepane.convertY(x.entry(1) + dy), 
+					spacepane.convertX(x.entry(0) + dx + ddx), spacepane.convertY(x.entry(1) + dy + ddy));
 		}
+	}
+	
+	public void guiCursor(double xP, double yP) {
+		GraphicsContext gc = RealSpaceMap.this.getGraphicsContext2D();
+		gc.setFont(new Font("monospace", 10));
+		gc.setFill(Luminescent.GITD);
+		gc.fillText("[" + spacepane.convertBackX(xP) + "," + spacepane.convertBackY(yP) + ")]"
+					, xP, yP);
+		
+		// Draw Gravitational Acceleration
+		gc.setStroke(Color.TEAL);
+		gc.setLineWidth(2);
+		Vector x = new Vector(spacepane.convertBackX(xP), spacepane.convertBackY(yP));
+		Vector a = this.model.getSpace().weightAt(x);
+		double ddx = a.entry(0);
+		double ddy = a.entry(1);
+		if (Vector.norm2(a) < 0.25) {
+			ddx = a.entry(0)*Math.pow(Vector.abs(a),-1)/2;
+			ddy = a.entry(1)*Math.pow(Vector.abs(a),-1)/2;
+		}
+		gc.strokeLine(
+				spacepane.convertX(x.entry(0)), spacepane.convertY(x.entry(1)), 
+				spacepane.convertX(x.entry(0) + ddx), spacepane.convertY(x.entry(1) + ddy));
 	}
 	
 	private class PaneNavigationHandler implements EventHandler<MouseEvent> {
@@ -101,32 +132,28 @@ public class RealSpaceMap extends Canvas {
 		
 		@Override
 		public void handle(MouseEvent ev) {
+			xP = ev.getX();
+			yP = ev.getY();
 			if (ev.getEventType() == MouseEvent.MOUSE_DRAGGED) {
-				double x = ev.getX();
-				double y = ev.getY();
 				if (!Double.isNaN(this.x) && !Double.isNaN(this.y)) {
-					double dx = x - this.x;
-					double dy = y - this.y;
+					double dx = xP - this.x;
+					double dy = yP - this.y;
 					RealSpaceMap.this.spacepane.addOriginBy(dx, dy);
-					RealSpaceMap.this.guiUpdate();
-				} else {System.out.println(x + " " + y );}
-				this.x = x;
-				this.y = y;
+					RealSpaceMap.this.model.update();
+				} else {}
+				this.x = xP;
+				this.y = yP;
 			}
 			if (ev.getEventType() == MouseEvent.MOUSE_RELEASED) {
 				this.x = Double.NaN;
 				this.y = Double.NaN;
 			}
 			if (ev.getEventType() == MouseEvent.MOUSE_MOVED) {
-				GraphicsContext gc = RealSpaceMap.this.getGraphicsContext2D();
-				guiUpdate(); // TODO Improve live 
-				gc.setFont(new Font("monospace", 10));
-				gc.setFill(Luminescent.GITD);
-				gc.fillText("[" + spacepane.convertBackX(ev.getX()) + "," + spacepane.convertBackY(ev.getY()) + ")]"
-							, ev.getX(), ev.getY());
+				RealSpaceMap.this.model.update();
+				guiCursor(xP, yP);
 			}
 			if (ev.getEventType() == MouseEvent.MOUSE_EXITED) {
-				guiUpdate();
+				RealSpaceMap.this.model.update();
 			}
 		}
 	}
@@ -134,15 +161,19 @@ public class RealSpaceMap extends Canvas {
 	private class ZoomNavigationHandler implements EventHandler<ScrollEvent> {
 		@Override
 		public void handle(ScrollEvent ev) {
+			double dxO = spacepane.getOrigin()[0] - xP;
+			double dyO = spacepane.getOrigin()[1] - yP;
 			if (ev.getDeltaY() > 0) {
 				double zoom = RealSpaceMap.this.spacepane.getZoom();
 				RealSpaceMap.this.spacepane.setZoom(zoom * 2);
+				RealSpaceMap.this.spacepane.setOrigin(xP + dxO*2, yP + dyO*2);
 			}
 			if (ev.getDeltaY() < 0) {
 				double zoom = RealSpaceMap.this.spacepane.getZoom();
 				RealSpaceMap.this.spacepane.setZoom(zoom / 2);
+				RealSpaceMap.this.spacepane.setOrigin(xP + dxO/2, yP + dyO/2);
 			}
-			RealSpaceMap.this.guiUpdate();
+			RealSpaceMap.this.model.update();
 		}
 	}
 }

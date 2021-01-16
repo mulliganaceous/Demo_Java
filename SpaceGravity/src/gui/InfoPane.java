@@ -15,13 +15,12 @@ public class InfoPane extends Pane implements ObservableView {
 	private ObservableView view;
 	private TextField intervalField;
 	private Button playButton;
-	
-	private Label mapLabel;
 	private static double DEFAULTSTEP = 60;
 	
 	public InfoPane(Model model, ObservableView view) {
 		super();
 		this.model = model;
+		this.model.setObservableInfoPane(this);
 		this.view = view;
 		this.setStyle("-fx-background-color: BLACK; -fx-border-color: #33ff99; -fx-border-width: 3");
 		
@@ -47,7 +46,7 @@ public class InfoPane extends Pane implements ObservableView {
 		
 		this.intervalField = new TextField(((RealSpacePane) view).getZoom() + "×; " + 
 				((RealSpacePane) view).getOrigin()[0] + "," + ((RealSpacePane) view).getOrigin()[1]);
-		this.intervalField.setPrefWidth(168);
+		this.intervalField.setPrefWidth(200);
 		this.intervalField.setLayoutX(28);
 		this.intervalField.setLayoutY(160);
 		this.intervalField.setMinHeight(48);
@@ -62,9 +61,10 @@ public class InfoPane extends Pane implements ObservableView {
 				double dt = Double.parseDouble(InfoPane.this.intervalField.getText());
 				InfoPane.this.model.step(dt);
 			} catch (NumberFormatException e) {
-				TimerTask task = new AnimationTask();
-				Timer timer = new Timer(true);
-				timer.scheduleAtFixedRate(task, 0, (long) (1000f/DEFAULTSTEP));
+//				TimerTask task = new AnimationTask();
+//				Timer timer = new Timer(true);
+//				timer.scheduleAtFixedRate(task, 0, (long) (1000f/DEFAULTSTEP));
+				InfoPane.this.model.step(1.0/DEFAULTSTEP);
 				System.out.println(InfoPane.this.model.getSpace());
 			}
 		}
@@ -83,6 +83,8 @@ public class InfoPane extends Pane implements ObservableView {
 	@Override
 	public void update() {
 		this.intervalField.setText(((RealSpacePane) view).getZoom() + "×; " + 
-				((RealSpacePane) view).getOrigin()[0] + "," + ((RealSpacePane) view).getOrigin()[1]);
+				String.format("(%.1f,%.1f)", 
+						((RealSpacePane) view).convertBackX(((RealSpacePane) view).getWidth()/2),
+						((RealSpacePane) view).convertBackY(((RealSpacePane) view).getHeight()/2)));
 	}
 }
