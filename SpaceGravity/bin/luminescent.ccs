@@ -1,0 +1,29 @@
+/* CUSTOM CCS */
+.button {
+	-fx-border-insets: 0;
+	-fx-font-family: "Century Gothic"; 
+	-fx-font-size: 16pt; -fx-text-fill: #33ff99;
+	-fx-font-weight: bold;
+	-fx-background-color: black;
+	-fx-border-color: #33ff99; 
+	-fx-border-width: 2
+}
+
+.button:pressed {
+	-fx-background-color: #00cc33;
+	-fx-font-size: 16pt; -fx-text-fill: #000000;
+}
+
+.button:disabled {
+	-fx-border-color: #00cc33; 
+}
+
+.text-field {
+	-fx-border-insets: 0;
+	-fx-font-family: "Century Gothic"; 
+	-fx-font-size: 16pt; -fx-text-fill: #33ff99;
+	-fx-font-weight: bold;
+	-fx-background-color: black;
+	-fx-border-color: #33ff99; 
+	-fx-border-width: 2
+}
