@@ -8,9 +8,11 @@ public class Body {
 	private String name;
 	private double mass;
 	private double size;
+	
 	private Location loc; // Location
 	private Vector v; // Velocity
 	private Vector a; // Acceleration
+	
 	public Body(String name, double mass, double size) {
 		this.name = name;
 		this.mass = mass;
@@ -38,6 +40,10 @@ public class Body {
 	
 	public Vector getPosition() {
 		return this.loc.getPosition();
+	}
+	
+	public double getPosition(int index) {
+		return this.loc.entry(index);
 	}
 	
 	public Vector getVelocity() {

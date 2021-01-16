@@ -4,13 +4,17 @@ import body.Body;
 import datastructure.BodyIndexedList.BodyIndexedIterator;
 
 public class Realspace extends Space {
-	private double G = 1;
+	private double G = 2;
 	
 	public Realspace(int dimension) {
 		super(dimension);
 	}
 	
-	public void update(double dt) {
+	public void setG(double G) {
+		this.G = G;
+	}
+	
+	public void step(double dt) {
 		BodyIndexedIterator iter0 = this.getBodies().iterator();
 		Body examined;
 		while (iter0.hasNext()) {

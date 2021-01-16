@@ -27,3 +27,9 @@
 	-fx-border-color: #33ff99; 
 	-fx-border-width: 2
 }
+
+.label {
+	-fx-font-family: "Century Gothic"; 
+	-fx-font-size: 16pt; -fx-text-fill: #33ff99;
+	-fx-font-weight: bold;
+}

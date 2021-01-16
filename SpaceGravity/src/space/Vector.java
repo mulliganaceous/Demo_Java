@@ -31,8 +31,8 @@ public class Vector {
 		return this.entries.length;
 	}
 	
-	public double[] getLocation() {
-		return this.entries;
+	public double entry(int index) {
+		return this.entries[index];
 	}
 	
 	public void setLocation(int index, double value) {
@@ -65,7 +65,13 @@ public class Vector {
 		return norm2;
 	}
 	
+	public static double abs(Vector v) {
+		return Math.sqrt(norm2(v));
+	}
+	
 	public static Vector unit(Vector v) {
+		if (norm2(v) == 0)
+			return v;
 		return mult(1.0/Math.sqrt(norm2(v)), v);
 	}
 	

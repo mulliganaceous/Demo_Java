@@ -38,7 +38,7 @@ public class BodyIndexedList {
 	
 	public void addBody(Body newBody) {
 		if (this.size >= this.bodies.length) {
-			if (this.rehashLevel >= this.rehashCriteria.length)
+			if (this.rehashLevel >= this.rehashCriteria.length - 1)
 				this.rehash(this.bodies.length * 2);
 			else
 				this.rehash(this.rehashCriteria[this.rehashLevel + 1]);

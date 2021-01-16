@@ -16,6 +16,10 @@ public class Location {
 		return this.x;
 	}
 	
+	public double entry(int index) {
+		return this.x.entry(index);
+	}
+	
 	public void setPosition(Vector x) {
 		this.x = x;
 	}
