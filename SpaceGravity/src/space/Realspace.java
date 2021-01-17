@@ -4,7 +4,7 @@ import body.Body;
 import datastructure.BodyIndexedList.BodyIndexedIterator;
 
 public class Realspace extends Space {
-	private double G = 2;
+	private double G = 1;
 	
 	public Realspace(int dimension) {
 		super(dimension);
@@ -38,10 +38,10 @@ public class Realspace extends Space {
 		Body examined;
 		while (iter0.hasNext()) {
 			examined = iter0.next();
-			examined.addPositionByVelocity(dt);
-			// Update velocity, then acceleration
+			// Update acceleration, then velocity
 			examined.addVelocityByAcceleration(dt);
 			examined.resetAcceleration();
+			examined.addPositionByVelocity(dt);
 		}
 		
 		// Determine forces of all the bodies. This is a quadratic algorithm.
@@ -67,7 +67,7 @@ public class Realspace extends Space {
 				}
 				// The weight force contributed is mutual. Determine acceleration.
 				examined.addAccelerationBy(Vector.mult(1d/examined.getMass(),forceFromBody));
-				otherbody.addAccelerationBy(Vector.mult(-1d/examined.getMass(), forceFromBody));
+				otherbody.addAccelerationBy(Vector.mult(-1d/otherbody.getMass(), forceFromBody));
 			}	
 		}
 	}

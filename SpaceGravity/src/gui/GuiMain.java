@@ -9,7 +9,7 @@ import space.Realspace;
 import space.Vector;
 
 public class GuiMain extends Application {
-	public static int INITIALMODE = 24;
+	public static int INITIALMODE = 0;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -48,9 +48,8 @@ public class GuiMain extends Application {
 
 	public void addInitialBodies(Model model) {
 		if (INITIALMODE == 0) {
-			model.getSpace().addBody(new Body("Alpha", 1, 0), new Vector(0,0), new Vector(0,0));
-			model.getSpace().addBody(new Body("Beta ", 1, 0), new Vector(2,0), new Vector(0,0));
-			model.getSpace().addBody(new Body("Gamma", 1, 0), new Vector(0,2), new Vector(0,0));
+			model.getSpace().addBody(new Body("Alpha", 0.5, 0), new Vector(-1,0), new Vector(0,0.5*Math.sqrt(0.5)));
+			model.getSpace().addBody(new Body("Beta ", 0.5, 0), new Vector(1,0), new Vector(0,-0.35355339));
 		}
 		else {
 			for (int k = 0; k < INITIALMODE; k++) {

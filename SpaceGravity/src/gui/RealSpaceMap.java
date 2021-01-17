@@ -86,14 +86,12 @@ public class RealSpaceMap extends Canvas {
 			gc.setStroke(Color.TEAL);
 			gc.setLineWidth(1);
 			Vector a = body.getAcceleration();
-
-			double ddx = a.entry(0);
-			double ddy = a.entry(1);
-			if (Vector.norm2(a) < 0.25 && Vector.norm2(a) > 1E-06) {
-				ddx = a.entry(0)*Math.pow(Vector.abs(a),-1)/2;
-				ddy = a.entry(1)*Math.pow(Vector.abs(a),-1)/2;
+			double ddx = a.entry(0)*Math.pow(Vector.abs(a),-0.5);
+			double ddy = a.entry(1)*Math.pow(Vector.abs(a),-0.5);
+			if (Vector.abs(a) < 0.0625 && Vector.norm2(a) > 1E-06) {
+				ddx = a.entry(0)*Math.pow(Vector.abs(a),-1)/4;
+				ddy = a.entry(1)*Math.pow(Vector.abs(a),-1)/4;
 			}
-
 			gc.strokeLine(
 					spacepane.convertX(x.entry(0) + dx), spacepane.convertY(x.entry(1) + dy), 
 					spacepane.convertX(x.entry(0) + dx + ddx), spacepane.convertY(x.entry(1) + dy + ddy));
@@ -112,15 +110,22 @@ public class RealSpaceMap extends Canvas {
 		gc.setLineWidth(2);
 		Vector x = new Vector(spacepane.convertBackX(xP), spacepane.convertBackY(yP));
 		Vector a = this.model.getSpace().weightAt(x);
-		double ddx = a.entry(0);
-		double ddy = a.entry(1);
+		double ddx = a.entry(0)*Math.pow(Vector.abs(a),-0.5);
+		double ddy = a.entry(1)*Math.pow(Vector.abs(a),-0.5);
 		if (Vector.norm2(a) < 0.25) {
 			ddx = a.entry(0)*Math.pow(Vector.abs(a),-1)/2;
 			ddy = a.entry(1)*Math.pow(Vector.abs(a),-1)/2;
 		}
-		gc.strokeLine(
-				spacepane.convertX(x.entry(0)), spacepane.convertY(x.entry(1)), 
-				spacepane.convertX(x.entry(0) + ddx), spacepane.convertY(x.entry(1) + ddy));
+		double xPG = spacepane.convertX(x.entry(0));
+		double yPG = spacepane.convertY(x.entry(1));
+		double axPG = spacepane.convertX(x.entry(0) + ddx);
+		double ayPG = spacepane.convertY(x.entry(1) + ddy);
+		double absPG = Math.sqrt((axPG - xPG)*(axPG - xPG) + (ayPG - yPG)*(ayPG - yPG));
+		if (absPG <= 64) {
+			axPG = xPG + (axPG - xPG)/absPG*64;
+			ayPG = yPG + (ayPG - yPG)/absPG*64;
+		}
+		gc.strokeLine(xPG, yPG, axPG, ayPG);
 	}
 	
 	private class PaneNavigationHandler implements EventHandler<MouseEvent> {
